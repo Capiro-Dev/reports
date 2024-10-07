@@ -5,11 +5,11 @@ import json
 import os
 # Path
 mongo_uri = os.getenv('MONGO_URI')
-path_to_save = 'app/data/cuttings'
+path_to_save = '/app/data/cuttings'
 
 # Db CHAQ
 mongo_client = MongoClient(mongo_uri)
-db = mongo_client['CHAQ_TEST']
+db = mongo_client['CHAQ']
 cuttings_collection = db['cuttingsrecords']
 
 @app.task

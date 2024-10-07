@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   mongo:
-    image: mongo:6.0     # Especifica una versión en lugar de "latest"
+    image: mongo:6.0 # Especifica una versión en lugar de "latest"
     ports:
       - "27017:27017"
     volumes:
@@ -13,14 +13,15 @@ services:
   python_app:
     build: .
     volumes:
-      - "C:/Power BI Data Sources:/app/data"
+      # - "C:/Power BI Data Sources:/app/data"
+      - "home/luis/data_source:/app/data"
     env_file:
       - .env
     networks:
       - backend
 
   redis:
-    image: redis:7.0     # Especifica una versión en lugar de "latest"
+    image: redis:7.0 # Especifica una versión en lugar de "latest"
     ports:
       - "6379:6379"
     networks:
@@ -28,7 +29,7 @@ services:
 
   celery:
     build:
-      context: .         # Asegúrate de que el Dockerfile esté en el directorio correcto
+      context: .
     volumes:
       - .:/app
     command: celery -A app.celery_config worker --loglevel=info
@@ -40,7 +41,7 @@ services:
 
   celery-beat:
     build:
-      context: .         # Asegúrate de que el Dockerfile esté en el directorio correcto
+      context: .
     volumes:
       - .:/app
     command: celery -A app.celery_config beat --loglevel=info
@@ -50,20 +51,20 @@ services:
     networks:
       - backend
 
-  # flower:
-  #   build:
-  #     context: .         # Asegúrate de que el Dockerfile esté en el directorio correcto
-  #   volumes:
-  #     - .:/app
-  #   command: python -m flower -A app.celery_config --port=5555
-  #   depends_on:
-  #     - mongo
-  #     - redis
-  #   networks:
-  #     - backend
+  flower:
+    image: mher/flower:0.9.7
+    command: [ 'flower', '--broker=redis://redis:6379', '--port=5555' ]
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - backend
+    ports:
+      - "5555:5555"
 
 volumes:
   mongo_data:
+
 
 networks:
   backend:
