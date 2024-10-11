@@ -5,26 +5,29 @@ app = Celery('tasks', broker='redis://redis:6379/0')
 
 app.conf.task_default_retry_delay = 120  # Tiempo de espera por defecto entre reintentos
 app.conf.task_max_retries = 2  # Número máximo de reintentos
+app.autodiscover_tasks(['app.cuttings','app.PLAQ'])
 
-
-@app.on_after_configure.connect
-def setup_periodic_tasks(sender, **kwargs):
-    print("Registered tasks:", sender.tasks.keys())
-
-# cuttings
 app.conf.beat_schedule = {
+    # cuttings
     'inventario_activo': {
-        'task': 'app.tasks_cuttings.generate_report_inventory_active',
-        'schedule': crontab(hour=12, minute=40),
+        'task': 'Cuttings - Report Inventory Active',
+        'schedule': crontab(hour='6-17',minute='0,30')
     },
-    # 'generate_report_2': {
-    #     'task': 'app.tasks.generate_report_2',
-    #     'schedule': 120.0,  # cada 120 segundos
-    # },
+    'esquejes_historico': {
+        'task' : 'Cuttings - Report Historic',
+        'schedule': crontab(hour=3)
+
+    },
+    # plaq
+    'historico_siembra': {
+        'task': 'PLAQ - Report Historic',
+        'schedule': crontab(hour=22)
+    },
 }
+
+
 
 app.conf.timezone = 'America/Bogota'
 
 if __name__ == '__main__':
     app.start()
-    

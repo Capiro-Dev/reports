@@ -1,20 +1,12 @@
 version: '3.8'
 
 services:
-  mongo:
-    image: mongo:6.0 # Especifica una versión en lugar de "latest"
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-    networks:
-      - backend
 
   python_app:
     build: .
     volumes:
+      - "~/home/luis/data_source:/app/data"
       # - "C:/Power BI Data Sources:/app/data"
-      - "home/luis/data_source:/app/data"
     env_file:
       - .env
     networks:
@@ -34,7 +26,6 @@ services:
       - .:/app
     command: celery -A app.celery_config worker --loglevel=info
     depends_on:
-      - mongo
       - redis
     networks:
       - backend
@@ -46,7 +37,6 @@ services:
       - .:/app
     command: celery -A app.celery_config beat --loglevel=info
     depends_on:
-      - mongo
       - redis
     networks:
       - backend
@@ -55,7 +45,6 @@ services:
     image: mher/flower:0.9.7
     command: [ 'flower', '--broker=redis://redis:6379', '--port=5555' ]
     depends_on:
-      - mongo
       - redis
     networks:
       - backend

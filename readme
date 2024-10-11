@@ -1,0 +1,2 @@
+docker exec -it <nombre_del_contenedor_o_id> /bin/bash
+celery -A tasks call <nombre_de_la_tarea> --args='[arg1, arg2]'

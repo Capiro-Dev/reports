@@ -1,20 +1,14 @@
-from app.celery_config import app
-from pymongo import MongoClient
+""
 from datetime import datetime, timedelta
+from app.cuttings.config import mongo_client,db,path_to_save
+from app.celery_config import app
 import json
-import os
-# Path
-mongo_uri = os.getenv('MONGO_URI')
-path_to_save = '/app/data/cuttings'
 
-# Db CHAQ
-mongo_client = MongoClient(mongo_uri)
-db = mongo_client['CHAQ']
-cuttings_collection = db['cuttingsrecords']
 
-@app.task
+@app.task(name="Cuttings - Report Inventory Active")
 def generate_report_inventory_active():
-    print("entry")
+    cuttings_collection = db['cuttingsrecords']
+
     today = datetime.now()
     limit_date = today - timedelta(days=90)
 
